@@ -13,9 +13,9 @@ const authController = require('../../../controllers/user/auth.controller');
 
 /**
  * @swagger
- *  /auth/register:
+ *  /auth/get-otp:
  *    post:
- *      summary: Register
+ *      summary: Get OTP
  *      tags: [Auth]
  *      requestBody:
  *        required: true
@@ -24,42 +24,16 @@ const authController = require('../../../controllers/user/auth.controller');
  *            schema:
  *              type: object
  *              required:
- *                - first_name
- *                - email
  *                - phone
- *                - password
  *              properties:
- *                first_name:
- *                  type: string
- *                last_name:
- *                  type: string
- *                email:
- *                  type: string
- *                  format: email
- *                  description: must be unique
  *                phone:
  *                  type: string
  *                  format: phone
  *                  description: must be unique
- *                dob:
- *                  type: string
- *                gender:
- *                  type: string
- *                password:
- *                  type: string
- *                  format: password
- *                  minLength: 8
- *                  description: At least one number and one letter
  *              example:
- *                first_name: John
- *                last_name: Doe
- *                email: johndoe@gmail.com
  *                phone: "1234567890"
- *                dob: "16/12/1995"
- *                gender: male/female
- *                password: Password@123
  *      responses:
- *        "201":
+ *        "200":
  *          description: Created
  *          content:
  *            application/json:
@@ -71,12 +45,13 @@ const authController = require('../../../controllers/user/auth.controller');
  *              schema:
  *                type: object
  */
-router.post('/register', validate(authValidation.register), authController.register);
+router.post('/get-otp', validate(authValidation.getOtp), authController.getOtp);
+
 /**
  * @swagger
- *  /auth/login:
+ *  /auth/verify-otp:
  *    post:
- *      summary: Login
+ *      summary: Verify OTP
  *      tags: [Auth]
  *      requestBody:
  *        required: true
@@ -85,18 +60,16 @@ router.post('/register', validate(authValidation.register), authController.regis
  *            schema:
  *              type: object
  *              required:
- *                - email
- *                - password
+ *                - phone
+ *                - otp
  *              properties:
- *                email:
+ *                phone:
  *                  type: string
- *                  format: email
- *                password:
+ *                otp:
  *                  type: string
- *                  format: password
  *              example:
- *                email: johndoe@gmail.com
- *                password: Password@123
+ *                phone: 8798756765
+ *                otp: 8123
  *      responses:
  *        "200":
  *          description: OK
@@ -104,13 +77,13 @@ router.post('/register', validate(authValidation.register), authController.regis
  *            application/json:
  *              schema:
  *                type: object
- *        "401":
+ *        "400":
  *          content:
  *            application/json:
  *              schema:
  *                type: object
  */
-router.post('/login', validate(authValidation.login), authController.login);
+router.post('/verify-otp', validate(authValidation.verifyOtp), authController.verifyOtp);
 
 
 module.exports = router;

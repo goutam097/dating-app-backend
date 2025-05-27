@@ -1,17 +1,8 @@
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const httpStatus = require('http-status');
 const config = require('../config/config');
-const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
 
-/**
- * Generate token
- * @param {ObjectId} userId
- * @param {Moment} expires
- * @param {string} [secret]
- * @returns {string}
- */
 const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
   const payload = {
     sub: userId,
@@ -22,12 +13,6 @@ const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
   return jwt.sign(payload, secret);
 };
 
-/**
- * Verify token and return token doc (or throw an error if it is not valid)
- * @param {string} token
- * @param {string} type
- * @returns {Promise<Token>}
- */
 const verifyToken = async (token, type) => {
   const payload = jwt.verify(token, config.jwt.secret);
   if (!payload) {
@@ -36,11 +21,6 @@ const verifyToken = async (token, type) => {
   return payload;
 };
 
-/**
- * Generate auth tokens
- * @param {User} user
- * @returns {Promise<Object>}
- */
 const generateAuthTokens = async (user) => {
   const accessTokenExpires = moment().add(config.jwt.accessExpirationDays, 'days');
   const accessToken = generateToken(user._id, accessTokenExpires, tokenTypes.ACCESS);

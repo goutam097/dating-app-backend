@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
+
+const images = mongoose.Schema({
+  image: {
+    type: String,
+    required: true,
+  },
+});
 
 const userSchema = mongoose.Schema(
   {
@@ -19,18 +25,6 @@ const userSchema = mongoose.Schema(
       type: String,
       trim: true,
       default: '',
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      validate(value) {
-        if (!validator.isEmail(value)) {
-          throw new Error('Invalid email');
-        }
-      },
     },
     phone: {
       type: String,
@@ -55,7 +49,7 @@ const userSchema = mongoose.Schema(
     },
     marital_status: {
       type: String,
-      enum: ['single', 'in_a_relationship', 'married', 'widowed', 'divorced', 'separated'],
+      enum: ['single', 'single_with_kids', 'widowed', 'widowed_with_kids', 'divorced', 'divorced_with_kids', 'separated', 'separated_with_kids'],
     },
     dob: {
       type: String,
@@ -64,23 +58,19 @@ const userSchema = mongoose.Schema(
     address: {
       type: Object,
       default: {
-        locality: '',
+        location: '',
         city: '',
         state: '',
         country: '',
         pin_code: null,
-        latitude: null,
-        longitude: null,
       },
     },
-    profile_image: {
-      type: String,
-      default: '',
-    },
+    images: [images],
     role: {
       type: String,
       required: false,
       enum: ['user', 'admin'],
+      default: 'user',
     },
     status: {
       type: Boolean,
@@ -89,28 +79,51 @@ const userSchema = mongoose.Schema(
     otp: {
       type: String,
     },
+    height: {
+      type: String,
+    },
+    religion: {
+      type: String,
+      enum: ['hindu', 'spiritual', 'muslim', 'christian', 'atheist', 'agnostic', 'buddhist', 'jewish', 'sikh', 'jain', 'bahai', 'other'],
+    },
+    mother_tongue: {
+      type: String,
+    },
+    other_language: {
+      type: String,
+    },
+    smoking: {
+      type: String,
+      enum: ['regularly', 'sometimes', 'never'],
+      default: 'never',
+    },
+    drinking: {
+      type: String,
+      enum: ['regularly', 'sometimes', 'never'],
+      default: 'never',
+    },
+    relationship_goal: {
+      type: String,
+    },
+    occupation: {
+      type: String,
+    },
+    income: {
+      type: String,
+    },
+    interests: [{
+      type: String,
+    }],
+    about: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-/**
- * Check if email is taken
- * @param {string} email - The user's email
- * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
- * @returns {Promise<boolean>}
- */
-userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
-  const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
-  return !!user;
-};
 
-/**
- * Check if password matches the user's password
- * @param {string} password
- * @returns {Promise<boolean>}
- */
 userSchema.methods.isPasswordMatch = async function (password) {
   const user = this;
   return bcrypt.compare(password, user.password);
@@ -129,9 +142,7 @@ userSchema.pre('save', async function (next) {
 
 userSchema.index({ 'address.location': '2dsphere' });
 
-/**
- * @typedef User
- */
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
